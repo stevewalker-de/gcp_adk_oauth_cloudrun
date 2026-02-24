@@ -33,3 +33,6 @@ OAUTH_SCOPES = [
     "openid",
     "https://www.googleapis.com/auth/userinfo.email"
 ]
+
+
+
