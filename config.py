@@ -1,5 +1,9 @@
 # config.py
 import os
+from dotenv import load_dotenv
+
+# Load local .env file if it exists
+load_dotenv()
 
 GCP_PROJECT = os.getenv("GCP_PROJECT", "g-sql-morphic-luminous")
 _DEFAULT_PROD_URL = "https://simple-oauth-app-732814971409.us-central1.run.app"
