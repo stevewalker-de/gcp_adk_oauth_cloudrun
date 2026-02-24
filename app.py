@@ -1,4 +1,7 @@
 import streamlit as st
+# Silence st.cache deprecation warning from dependencies
+st.cache = getattr(st, 'cache_data', st.cache)
+
 
 from auth import Authenticator
 from cookie_manager import get_cookie_manager
@@ -90,3 +93,5 @@ else:
 
     # Login Button
     authenticator.login_widget()
+
+

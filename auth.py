@@ -1,7 +1,6 @@
-# auth.py
 import base64
 import json
-from typing import Dict
+from typing import Dict, Optional, Any
 
 import streamlit as st
 from google.api_core.exceptions import GoogleAPICallError
@@ -10,13 +9,15 @@ from google.cloud import firestore
 from google.oauth2.credentials import Credentials
 
 from app_secrets import get_secret
-from config import GCP_PROJECT, REDIRECT_URI, OAUTH_SCOPES
+from config import (
+    GCP_PROJECT, REDIRECT_URI, OAUTH_SCOPES,
+    FIRESTORE_DATABASE, FIRESTORE_TOKEN_COLLECTION, ALLOWED_DOMAIN
+)
 from OAuth2Component import OAuth2Component
 
 OAUTH_CLIENT_ID_SECRETMANAGER = "da-tco-app-clientid"
 OAUTH_CLIENT_SECRET_SECRETMANAGER = "da-tco-app-clientsecret"
 
-FIRESTORE_TOKEN_COLLECTION = "Tessera_Homōnis"
 AUTHORIZE_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 REVOKE_ENDPOINT = "https://oauth2.googleapis.com/revoke"
@@ -54,7 +55,7 @@ class Authenticator:
         Initializes a Firestore client using Application Default Credentials (ADC).
         """
         try:
-            return firestore.Client(project=GCP_PROJECT, database="tcoapp")
+            return firestore.Client(project=GCP_PROJECT, database=FIRESTORE_DATABASE)
         except Exception as e:
             st.error(
                 f"🔥 Could not connect to Firestore. Ensure GCP_PROJECT is set and you are authenticated. Error: {e}"
@@ -232,26 +233,20 @@ class Authenticator:
         """
         Displays the login button and handles the OAuth authentication flow.
         """
+
         _, col2, _ = st.columns([1, 1, 1])
         with col2:
             st.info("Please log in to continue.")
-
             extras: Dict[str, str] = {
                 "access_type": "offline",
                 "include_granted_scopes": "true",
+                "hd": ALLOWED_DOMAIN,
             }
+            current_user = st.session_state.get("user_email") or self.cookies.get("user_email")
+            tok = self._load_token_from_firestore(current_user) if current_user else None
 
-            current_user = st.session_state.get("user_email") or self.cookies.get(
-                "user_email"
-            )
-            tok = (
-                self._load_token_from_firestore(current_user) if current_user else None
-            )
-
-            # Use OAUTH_SCOPES from config as the required set
             required_scopes = set(OAUTH_SCOPES)
             token_scopes = set((tok or {}).get("scopes", []))
-
             if (
                 (not tok)
                 or (not tok.get("refresh_token"))
@@ -267,30 +262,38 @@ class Authenticator:
                 pkce="S256",
             )
 
-        if result and "token" in result:
+        if result and "token" in result:                          # OAuth returned a token
             token_info = result["token"]
             user_email = self._extract_user_email(token_info)
 
-            if user_email:
-                scope_str = token_info.get("scope", "")
-                token_info["scope"] = scope_str
-                token_info["scopes"] = (
-                    scope_str.split()
-                    if isinstance(scope_str, str)
-                    else (token_info.get("scopes") or [])
-                )
-
-                self._save_token_to_firestore(user_email, token_info)
-                self.cookies["user_email"] = user_email
-                self.cookies.save()
-                st.session_state.auth_token_info = token_info
-                st.session_state.user_email = user_email
-                st.session_state.creds = self._create_credentials_object(token_info)
-                st.rerun()
-            else:
+            if not user_email:
                 st.error("❌ Failed to extract user email from OAuth token.")
+                return
+
+            if not user_email.endswith(f"@{ALLOWED_DOMAIN}"):    # Domain check
+                st.error(f"❌ Access restricted to @{ALLOWED_DOMAIN} accounts.")
+                self.oauth2.revoke_token(token_info.get("access_token"))
+                st.stop()
+                return
+
+            scope_str = token_info.get("scope", "")              # All good — save session
+            token_info["scope"] = scope_str
+            token_info["scopes"] = (
+                scope_str.split()
+                if isinstance(scope_str, str)
+                else (token_info.get("scopes") or [])
+            )
+            self._save_token_to_firestore(user_email, token_info)
+            self.cookies["user_email"] = user_email
+            self.cookies.save()
+            st.session_state.auth_token_info = token_info
+            st.session_state.user_email = user_email
+            st.session_state.creds = self._create_credentials_object(token_info)
+            st.rerun()
+
         elif result:
             st.error(f"OAuth Error: {result}")
+
 
     def logout_widget(self, key="default_logout_button"):
         """
