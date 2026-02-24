@@ -2,9 +2,8 @@
 import os
 from enum import Enum
 
-GCP_PROJECT = "g-sql-morphic-luminous"
+GCP_PROJECT = os.getenv("GCP_PROJECT", "g-sql-morphic-luminous")
 REDIRECT_URI = "https://simple-oauth-app-732814971409.us-central1.run.app"
-
 LOCATION = "global"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")

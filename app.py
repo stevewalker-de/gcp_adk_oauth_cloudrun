@@ -8,9 +8,6 @@ from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 # --- APP SETUP ---
 st.set_page_config(page_title="Simple OAuth Test", page_icon="🔐")
 
-with st.sidebar:
-    st.info(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
-    st.info(f"GOOGLE_CLIENT_SECRET: {GOOGLE_CLIENT_SECRET}")
 
 # --- UI LOGIC ---
 cookies = get_cookie_manager()
