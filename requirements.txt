@@ -1,0 +1,17 @@
+streamlit
+google-genai
+pandas
+requests
+google-auth
+google-cloud-aiplatform 
+google-cloud-discoveryengine
+google-cloud-billing
+pydantic
+python-dotenv
+google-api-python-client
+streamlit-cookies-manager
+google-cloud-firestore
+streamlit-oauth
+google-cloud-secret-manager
+httpx-oauth
+google-adk

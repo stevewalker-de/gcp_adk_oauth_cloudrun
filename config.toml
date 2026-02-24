@@ -1,0 +1,22 @@
+# .streamlit/config.toml
+
+[client]
+showErrorDetails = "stacktrace"
+
+[theme]
+# The base theme for the app.
+base = "light"
+
+# The main background color for the app.
+backgroundColor = "#FFFFFF"
+
+primaryColor = "#4285F4" # <<< THIS LINE CONTROLS THE FOCUS BORDER COLOR
+
+# The primary text color for the main app area.
+textColor = "#202124"
+
+baseRadius = "0.6rem"
+buttonRadius = "full"
+
+[browser]
+gatherUsageStats = false
