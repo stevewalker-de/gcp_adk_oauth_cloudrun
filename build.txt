@@ -1,0 +1,195 @@
+python3.12 -m venv .venv
+source .venv/bin/activate
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project g-sql-morphic-luminous
+gcloud components update
+
+gcloud config set project steveswalker-solutions-sandbox
+
+gcloud auth application-default login \
+  --scopes="https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/documents,https://www.googleapis.com/auth/drive"
+
+/Users/steveswalker/code/da-tco-app/.venv/lib/python3.12/site-packages/vertexai/preview/reasoning_engines/templates/
+https://github.com/google/adk-python.git
+
+python3 -m py_compile next.py 2>&1 && echo "compiled successfully"
+
+*****
+pip install --only-binary :all: -r /Users/steveswalker/code/adk-samples/python/agents/blog-writer/requirements.txt
+*****
+
+gcloud alpha run deploy simple-oauth-app \
+  --image us-central1-docker.pkg.dev/g-sql-morphic-luminous/cloud-run-source-deploy/simple-oauth-app:latest \
+  --iap \
+  --service-account 'da-tco-app@g-sql-morphic-luminous.iam.gserviceaccount.com' \
+  --project g-sql-morphic-luminous \
+  --region us-central1 \
+  --no-allow-unauthenticated 
+
+
+VERSION="Version 1.1.2 $(date +'%b %d %Y')"
+
+gcloud run deploy tco-v2 \
+  --image us-central1-docker.pkg.dev/g-sql-morphic-luminous/cloud-run-source-deploy/tco-v2:latest \
+  --project steveswalker-solutions-sandbox \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars APP_VERSION="$VERSION"
+
+
+
+
+gcloud alpha run deploy tco-v2 \
+  --source . \
+  --project g-sql-morphic-luminous \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars APP_VERSION=$VERSION \
+  --iap  \
+  --service-account 'da-tco-app@g-sql-morphic-luminous.iam.gserviceaccount.com' \
+
+
+gcloud alpha run deploy beach-walk \
+  --source .  \
+  --project steveswalker-solutions-sandbox \
+  --region us-central1 \
+  --allow-unauthenticated
+
+
+VERSION="v$(date +%Y%m%d-%H%M)"
+gcloud run deploy tco-v2 \
+  --image us-central1-docker.pkg.dev/g-sql-morphic-luminous/cloud-run-source-deploy/tco-v2:latest \
+  --project g-sql-morphic-luminous \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars APP_VERSION=$VERSION
+
+
+
+  
+gcloud run deploy YOUR_SERVICE \
+  --service-account=YOUR_SA_EMAIL \
+  --set-env-vars=... \
+  --region=YOUR_REGION \
+  --image=YOUR_IMAGE \
+  --allow-unauthenticated \
+  --scopes=https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive
+
+
+git add ui_components/assessment_tab.py
+git commit -m "Update assessment_tab.py with fix for delete"
+
+
+logName="projects/g-sql-morphic-luminous/logs/da_tco_logging"
+jsonPayload.message: "User logged in:"
+
+rsync -av --exclude='.*' /Users/steveswalker/code/da-tco-app /Users/steveswalker/code/justincase
+
+lsof -t -i:8501
+
+gcloud alpha iap web add-iam-policy-binding --member=group:google-cloud-everyone@google.com --role=roles/iap.httpsResourceAccessor --resource-type=cloud-run --region=us-central1 --service=beach-walk-advisor
+
+gcloud alpha iap web add-iam-policy-binding --member=group:google-cloud-everyone@google.com --role=roles/iap.httpsResourceAccessor --resource-type=cloud-run --region=us-central1 --service=simple-oauth-app
+
+gcloud alpha iap web add-iam-policy-binding --member=group:googlers@google.com --role=roles/iap.httpsResourceAccessor --resource-
+type=cloud-run --region=us-central1 --service=gilligan
+
+
+pip install black
+pip install isort 
+
+
+
+gcloud projects list --filter="projectNumber:703700243015" --format="value(projectId)"
+gcloud run revisions list --service mugsy --region us-central1
+gcloud alpha iap web add-iam-policy-binding --member=group:googlers@google.com --role=roles/iap.httpsResourceAccessor --resource-
+type=cloud-run --region=us-central1 --service=adk-dynamic-content
+gcloud alpha iap web add-iam-policy-binding --member=group:googlers@google.com --role=roles/iap.httpsResourceAccessor --resource-
+type=cloud-run --region=us-central1 --service=mugsy
+
+gsutil cp /Users/steveswalker/code/tco_v2/gcp-solution-ontology.csv gs://gcp_modernization_advisor_cache/gcp-solution-ontology.csv 
+
+gsutil cp /Users/steveswalker/code/tco_v2/gcp_components.csvgs://gcp_modernization_advisor_cache/gcp_components.csv
+
+
+# Quick test - which agents import cleanly?
+python3 -c "
+import sys
+from pathlib import Path
+
+agents_dir = Path('.')
+for folder in sorted(agents_dir.iterdir()):
+    if not folder.is_dir() or folder.name.startswith(('.', '_')):
+        continue
+    for subfolder in folder.iterdir():
+        if subfolder.is_dir() and (subfolder / 'agent.py').exists():
+            pkg = subfolder.name
+            parent = subfolder.parent
+            sys.path.insert(0, str(parent))
+            try:
+                __import__(f'{pkg}.agent')
+                print(f'✅ {folder.name}')
+            except Exception as e:
+                print(f'❌ {folder.name}: {type(e).__name__}')
+            break
+"
+
+
+
+
+Remove these fields. They consume ~70% of your token count and are not strictly necessary for the *search* algorithm to find the right candidate.
+
+* ❌ **`pricing_info_full`**: This is the biggest offender. It is a massive, nested object.
+* ❌ **`pricing_tiers`**: This can also be large. (See "Runtime Strategy" below for how to handle this).
+* ❌ **`geo_taxonomy_full`**: Redundant. You already have `geo_regions` and `geo_type`.
+* ❌ **`category_full`**: Redundant. You already have `resource_group`.
+* ❌ **`aggregation_*`**: Technical billing noise (`aggregation_interval`, `aggregation_count`).
+* ❌ **`base_unit_*`**: Redundant conversion factors.
+* ❌ **`effective_time`**: Not used for search relevance.
+
+The "Must Keep" List (Search Critical)
+
+You **must** keep these. If you delete them, the `VertexAISearchClient` and your Python filtering logic will fail.
+
+* ✅ **`sku_id`**: The key to fetching details later.
+* ✅ **`name`**: The API Resource Name (e.g., `services/16B8...`). Required to call the Google Billing API.
+* ✅ **`description`**: **Critical.** This is what the user searches against.
+* ✅ **`service_display_name`**: **Critical.** Used by your `SKUScoringEngine` to award points.
+* ✅ **`geo_regions`**: **Critical.** Your Python code filters out regions (e.g., removing "us-east1" results when the user asks for "us-west1") using this field.
+* ✅ **`searchable_text`**: **Critical.** This is your primary keyword bag for the search engine.
+
+
+
+gcloud run deploy beach-walk-advisor   --source .   --region us-central1   --allow-unauthenticated   --set-env-vars GOOGLE_CLOUD_PROJECT=steveswalker-solutions-sandbox,GOOGLE_CLOUD_LOCATION=global
+
+            
+
+
+python 3.12 update 
+Bash
+
+deactivate
+rm -rf .venv
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+
+
+
+gsutil iam ch serviceAccount:${CLOUD_RUN_SA}:objectViewer gs://gcp_modernization_advisor_cache
+
+
+gcloud run deploy  beach-walk-advisor \
+  --image us-central1-docker.pkg.dev/g-sql-morphic-luminous/cloud-run-source-deploy/beach-walk-advisor:latest \
+  --project g-sql-morphic-luminous \
+  --region us-central1 \
+  --iap \
+  --region us-central1 \
+  
+
+
+git remote add origin https://github.com/stevewalker-de/gcp_adk_oauth_cloudrun.git
+git branch -M main
+git push -u origin main

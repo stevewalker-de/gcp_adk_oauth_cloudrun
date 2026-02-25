@@ -1,12 +1,13 @@
 # config.py
 import os
+
 from dotenv import load_dotenv
 
 # Load local .env file if it exists
 load_dotenv()
 
-GCP_PROJECT = os.getenv("GCP_PROJECT", "devrel-solutions-rosy-100")
-_DEFAULT_PROD_URL = "https://rosy2-690086001279.us-central1.run.app"
+GCP_PROJECT = os.getenv("GCP_PROJECT", "bp-steveswalker-solutions-303")
+_DEFAULT_PROD_URL = "https://knock-knock-cloudrun-119408220431.us-central1.run.app"
 _LOCAL_URL = "http://localhost:8501"
 
 REDIRECT_URI = os.getenv("REDIRECT_URI")
@@ -33,10 +34,4 @@ GOOGLE_API_SCOPES = [
     "https://www.googleapis.com/auth/cloud-platform",  # Added for general auth
 ]
 
-OAUTH_SCOPES = [
-    "openid",
-    "https://www.googleapis.com/auth/userinfo.email"
-]
-
-
-
+OAUTH_SCOPES = ["openid", "https://www.googleapis.com/auth/userinfo.email"]

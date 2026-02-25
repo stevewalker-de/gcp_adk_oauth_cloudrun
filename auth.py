@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 import streamlit as st
 from google.api_core.exceptions import GoogleAPICallError
@@ -9,21 +9,17 @@ from google.cloud import firestore
 from google.oauth2.credentials import Credentials
 
 from app_secrets import get_secret
-from config import (
-    GCP_PROJECT, REDIRECT_URI, OAUTH_SCOPES,
-    FIRESTORE_DATABASE, FIRESTORE_TOKEN_COLLECTION, ALLOWED_DOMAIN,
-    GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-)
+from config import (ALLOWED_DOMAIN, FIRESTORE_DATABASE,
+                    FIRESTORE_TOKEN_COLLECTION, GCP_PROJECT, GOOGLE_CLIENT_ID,
+                    GOOGLE_CLIENT_SECRET, OAUTH_SCOPES, REDIRECT_URI)
 from OAuth2Component import OAuth2Component
 
-OAUTH_CLIENT_ID_SECRETMANAGER = "da-tco-app-clientid"
-OAUTH_CLIENT_SECRET_SECRETMANAGER = "da-tco-app-clientsecret"
+OAUTH_CLIENT_ID_SECRETMANAGER = "knock-knock-clientid"
+OAUTH_CLIENT_SECRET_SECRETMANAGER = "knock-knock-clientsecret"
 
 AUTHORIZE_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 REVOKE_ENDPOINT = "https://oauth2.googleapis.com/revoke"
-
-
 
 
 class Authenticator:
@@ -38,7 +34,9 @@ class Authenticator:
         Args:
             cookies: A cookie manager instance for managing user sessions.
         """
-        self.oauth_client_id = GOOGLE_CLIENT_ID or get_secret(GCP_PROJECT, OAUTH_CLIENT_ID_SECRETMANAGER)
+        self.oauth_client_id = GOOGLE_CLIENT_ID or get_secret(
+            GCP_PROJECT, OAUTH_CLIENT_ID_SECRETMANAGER
+        )
         self.oauth_client_secret = GOOGLE_CLIENT_SECRET or get_secret(
             GCP_PROJECT, OAUTH_CLIENT_SECRET_SECRETMANAGER
         )
@@ -46,8 +44,6 @@ class Authenticator:
         self.db = self._get_firestore_client()
         self.oauth2 = self._init_oauth_component()
         self._init_session_state()
-
-
 
     @staticmethod
     @st.cache_resource(show_spinner=False)
@@ -197,12 +193,14 @@ class Authenticator:
         Checks for an existing session and restores it from a cookie and Firestore token.
         Also validates that the current token has all required scopes.
         """
-        if st.session_state.get("user_email") and st.session_state.get("auth_token_info"):
+        if st.session_state.get("user_email") and st.session_state.get(
+            "auth_token_info"
+        ):
             # Verify scopes
             token_info = st.session_state.get("auth_token_info")
             token_scopes = set(token_info.get("scopes", []))
             required_scopes = set(OAUTH_SCOPES)
-            
+
             # Allow for some flexibility if OAUTH_SCOPES has specific versions, but generally we want exact match or superset
             # For simplicity, we check if required_scopes is a subset of token_scopes
             if not required_scopes.issubset(token_scopes):
@@ -220,13 +218,13 @@ class Authenticator:
                 # Check scopes before restoring
                 token_scopes = set(token.get("scopes", []))
                 required_scopes = set(OAUTH_SCOPES)
-                
+
                 if required_scopes.issubset(token_scopes):
                     st.session_state.auth_token_info = token
                     st.session_state.user_email = user_email_from_cookie
                     st.session_state.creds = self._create_credentials_object(token)
                 else:
-                    self.cookies["user_email"] = "" # Clear invalid cookie
+                    self.cookies["user_email"] = ""  # Clear invalid cookie
             else:
                 self.cookies["user_email"] = ""
 
@@ -243,8 +241,12 @@ class Authenticator:
                 "include_granted_scopes": "true",
                 "hd": ALLOWED_DOMAIN,
             }
-            current_user = st.session_state.get("user_email") or self.cookies.get("user_email")
-            tok = self._load_token_from_firestore(current_user) if current_user else None
+            current_user = st.session_state.get("user_email") or self.cookies.get(
+                "user_email"
+            )
+            tok = (
+                self._load_token_from_firestore(current_user) if current_user else None
+            )
 
             required_scopes = set(OAUTH_SCOPES)
             token_scopes = set((tok or {}).get("scopes", []))
@@ -263,7 +265,7 @@ class Authenticator:
                 pkce="S256",
             )
 
-        if result and "token" in result:                          # OAuth returned a token
+        if result and "token" in result:  # OAuth returned a token
             token_info = result["token"]
             user_email = self._extract_user_email(token_info)
 
@@ -271,13 +273,13 @@ class Authenticator:
                 st.error("❌ Failed to extract user email from OAuth token.")
                 return
 
-            if not user_email.endswith(f"@{ALLOWED_DOMAIN}"):    # Domain check
+            if not user_email.endswith(f"@{ALLOWED_DOMAIN}"):  # Domain check
                 st.error(f"❌ Access restricted to @{ALLOWED_DOMAIN} accounts.")
                 self.oauth2.revoke_token(token_info.get("access_token"))
                 st.stop()
                 return
 
-            scope_str = token_info.get("scope", "")              # All good — save session
+            scope_str = token_info.get("scope", "")  # All good — save session
             token_info["scope"] = scope_str
             token_info["scopes"] = (
                 scope_str.split()
@@ -294,7 +296,6 @@ class Authenticator:
 
         elif result:
             st.error(f"OAuth Error: {result}")
-
 
     def logout_widget(self, key="default_logout_button"):
         """

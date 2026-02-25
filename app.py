@@ -1,16 +1,13 @@
 import streamlit as st
+
 # Silence st.cache deprecation warning from dependencies
-st.cache = getattr(st, 'cache_data', st.cache)
+st.cache = getattr(st, "cache_data", st.cache)
 
 
 from auth import Authenticator
+from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from cookie_manager import get_cookie_manager
 from simple_joke_agent import create_joke_agent, generate_reply
-from config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-
-# --- APP SETUP ---
-st.set_page_config(page_title="Simple OAuth Test", page_icon="🔐")
-
 
 # --- UI LOGIC ---
 cookies = get_cookie_manager()
@@ -18,6 +15,13 @@ if not cookies.ready():
     st.stop()
 
 authenticator = Authenticator(cookies)
+
+# --- APP SETUP ---
+st.set_page_config(page_title="Simple OAuth Test", page_icon="🔐")
+with st.sidebar:
+    st.info(f"GOOGLE_CLIENT_ID: {authenticator.oauth_client_id}")
+    st.info(f"GOOGLE_CLIENT_SECRET: {authenticator.oauth_client_secret}")
+
 authenticator.check_session()
 if st.session_state.get("user_email"):
     with st.sidebar:
@@ -93,5 +97,3 @@ else:
 
     # Login Button
     authenticator.login_widget()
-
-

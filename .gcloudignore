@@ -1,0 +1,21 @@
+# .gcloudignore - Google Cloud SDK ignore file
+.gcloudignore
+.git
+.gitignore
+
+# Python specifics
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# IDE and local configs
+.vscode/
+.idea/
+.DS_Store
+
