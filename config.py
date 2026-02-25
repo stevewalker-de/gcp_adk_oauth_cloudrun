@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 # Load local .env file if it exists
 load_dotenv()
 
-GCP_PROJECT = os.getenv("GCP_PROJECT", "g-sql-morphic-luminous")
-_DEFAULT_PROD_URL = "https://simple-oauth-app-732814971409.us-central1.run.app"
+GCP_PROJECT = os.getenv("GCP_PROJECT", "devrel-solutions-rosy-100")
+_DEFAULT_PROD_URL = "https://rosy2-690086001279.us-central1.run.app"
 _LOCAL_URL = "http://localhost:8501"
 
 REDIRECT_URI = os.getenv("REDIRECT_URI")
@@ -25,7 +25,7 @@ MODEL_NAME = "gemini-3-flash-preview"
 COOKIE_MANAGER_SECRET = "cookie_manager_secret"
 
 # Firestore & Auth Config
-FIRESTORE_DATABASE = "tcoapp"
+FIRESTORE_DATABASE = "(default)"
 FIRESTORE_TOKEN_COLLECTION = "Tessera_Homōnis"
 ALLOWED_DOMAIN = "google.com"
 

@@ -11,7 +11,8 @@ from google.oauth2.credentials import Credentials
 from app_secrets import get_secret
 from config import (
     GCP_PROJECT, REDIRECT_URI, OAUTH_SCOPES,
-    FIRESTORE_DATABASE, FIRESTORE_TOKEN_COLLECTION, ALLOWED_DOMAIN
+    FIRESTORE_DATABASE, FIRESTORE_TOKEN_COLLECTION, ALLOWED_DOMAIN,
+    GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 )
 from OAuth2Component import OAuth2Component
 
@@ -37,8 +38,8 @@ class Authenticator:
         Args:
             cookies: A cookie manager instance for managing user sessions.
         """
-        self.oauth_client_id = get_secret(GCP_PROJECT, OAUTH_CLIENT_ID_SECRETMANAGER)
-        self.oauth_client_secret = get_secret(
+        self.oauth_client_id = GOOGLE_CLIENT_ID or get_secret(GCP_PROJECT, OAUTH_CLIENT_ID_SECRETMANAGER)
+        self.oauth_client_secret = GOOGLE_CLIENT_SECRET or get_secret(
             GCP_PROJECT, OAUTH_CLIENT_SECRET_SECRETMANAGER
         )
         self.cookies = cookies

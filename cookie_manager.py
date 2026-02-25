@@ -7,7 +7,8 @@ from app_secrets import get_secret
 from config import GCP_PROJECT, COOKIE_MANAGER_SECRET
 
 
-def get_cookie_manager(prefix: str = "tco_app/"):
+
+def get_cookie_manager(prefix: str = "knock_knock_app/"):
     """
     Returns a cached instance of EncryptedCookieManager.
     """
